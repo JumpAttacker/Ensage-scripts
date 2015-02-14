@@ -21,9 +21,11 @@ local Key_for_repel=false
 local monitor = client.screenSize.x/1600
 local F14 = drawMgr:CreateFont("F14","Tahoma",14*monitor,550*monitor)
 local sleepTick=nil
+local move=0
+local can_heal=false
 text=nil
 function Key(msg,code)
-	if client.console or client.chat or not init then return end
+	if client.console or client.chat or client.loading or not init then return end
 	if msg == KEY_UP then
 		if code == Hk1 --[[and IsKeyDown(32)]]  then
 			Key_for_heal=true
@@ -39,14 +41,9 @@ end
 first=true
 function Tick( tick )
 	if not PlayingGame() then return end
-	--if first then print('In game') end
 	me = entityList:GetMyHero()	if not me then return end
-	--if first then print(me.name) end
 	local ID = me.classId
-	if ID ~= CDOTA_Unit_Hero_Omniknight then 
-		GameClose() 
-		return
-	end
+	if ID ~= CDOTA_Unit_Hero_Omniknight then GameClose() returnend
 	if first then 
 		--print('classId'..me.classId) 
 		init=true
@@ -58,37 +55,51 @@ function Tick( tick )
 	first=false
 	
 	if target~=nil then
-		local s1=''
-		local s2=''
-		if Key_for_heal then s1=' [+] ' else s1=' [-] ' end
-		if Key_for_repel then s2=' [+] ' else s2=' [-] ' end
-		text.text='Phantom assasin detected: '..s1..s2
+		if IsKeyDown(32) and HealAfterBlink then
+			if tick > move then
+				me:Move(client.mousePosition)
+				move = tick + 100
+			end
+			if CatchEnemy() and me.alive and target.alive then 
+				local omni = me:FindSpell("omniknight_purification")
+				if omni and omni.level > 0 and omni:CanBeCasted() and me:CanCast() then
+					if target and GetDistance2D(me,target) < 2500 then
+						me:CastAbility(omni,target)
+						Key_for_heal = false
+					end
+				end
+			end
+			text.text='Auto heal [on]'
+		else
+			text.text='Auto heal [off]'
+		end
 	else
 		text.text='No target'
-	end
-	if me.alive and target~=nil and target.alive then
-		if Key_for_heal then
-			local omni = me:FindSpell("omniknight_purification")
-			if omni and omni.level > 0 and omni:CanBeCasted() and me:CanCast() then
-				if target and GetDistance2D(me,target) < 2500 then
-					me:CastAbility(omni,target)
-					Key_for_heal = false
+		if me.alive and target~=nil and target.alive then
+			if Key_for_heal then
+				local omni = me:FindSpell("omniknight_purification")
+				if omni and omni.level > 0 and omni:CanBeCasted() and me:CanCast() then
+					if target and GetDistance2D(me,target) < 2500 then
+						me:CastAbility(omni,target)
+						Key_for_heal = false
+					end
+				end
+			end
+			if Key_for_repel then
+				local omni = me:GetAbility(2)
+				if omni and omni.level > 0 and omni:CanBeCasted() and me:CanCast() then
+					if target and GetDistance2D(me,target) < 2500 then
+						me:CastAbility(omni,target)
+						Key_for_repel = false
+					end
 				end
 			end
 		end
-		if Key_for_repel then
-			local omni = me:GetAbility(2)
-			if omni and omni.level > 0 and omni:CanBeCasted() and me:CanCast() then
-				if target and GetDistance2D(me,target) < 2500 then
-					me:CastAbility(omni,target)
-					Key_for_repel = false
-				end
-			end
-		end
 	end
+	
+	
 end
 function CatchPa()
- 
 	local ally = entityList:FindEntities({type=TYPE_HERO,team=TEAM_ALLY,alive=true,visible=true,classId=CDOTA_Unit_Hero_PhantomAssassin})
 	target=nil
 	for i,v in ipairs(ally) do
@@ -99,6 +110,16 @@ function CatchPa()
 			return
 		end
 	end
+end
+function CatchEnemy()
+	local eny = entityList:FindEntities({type=TYPE_HERO,team=TEAM_ENEMY,alive=true})
+	for i,v in ipairs(ally) do
+		distance = GetDistance2D(eny,v)
+		if distance <= 260 and not v:IsIllusion() then 
+			return true
+		end
+	end
+	return false
 end
 
 function GameClose()
