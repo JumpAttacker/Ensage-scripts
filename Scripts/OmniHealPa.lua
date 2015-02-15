@@ -1,4 +1,4 @@
---<<omni support pa>>
+--<<omni support pa v1.3>>
 require("libs.Utils")
 require("libs.ScriptConfig")
 
@@ -54,13 +54,14 @@ function Tick( tick )
 	end
 	CatchPa()
 	local s1=''
-	local CE=CatchEnemy()
+	
 	if HealAfterBlink then 
 		s1='[+]' 
 	else 
 		s1='[-]' 
 	end
 	if target~=nil then
+		local CE=CatchEnemy()
 		if IsKeyDown(32) and HealAfterBlink and SleepCheck('test') then
 			if tick > move then
 				me:Move(client.mousePosition)
