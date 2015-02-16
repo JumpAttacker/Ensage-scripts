@@ -1,4 +1,4 @@
---<<omni support pa v1.3>>
+--<<omni support pa v1.4>>
 require("libs.Utils")
 require("libs.ScriptConfig")
 
@@ -125,7 +125,7 @@ function CatchEnemy()
 	local enemyTeam = me:GetEnemyTeam() 
 	local eny = entityList:FindEntities({type=LuaEntity.TYPE_HERO,team=enemyTeam,alive=true,visible=true})
 	for i,v in ipairs(eny) do
-		if v.healthbarOffset ~= -1 and not v:IsIllusion() then
+		if target.healthbarOffset ~= -1 and v.healthbarOffset ~= -1 and not v:IsIllusion() then
 			distance = GetDistance2D(target,v)
 			if distance <= 260 and v.visible and v.alive and v.health > 0 then 
 				name=v.name
@@ -139,6 +139,7 @@ end
 
 function GameClose()
 	text.visible=false
+	collectgarbage("collect")
 end
 
 script:RegisterEvent(EVENT_CLOSE, GameClose)
