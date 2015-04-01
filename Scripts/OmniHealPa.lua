@@ -45,6 +45,7 @@ end
 function Tick( tick )
 	if not PlayingGame() or client.chat then return end
 	me = entityList:GetMyHero()	
+	--print(me)
 	if not me then return end
 	local ID = me.classId
 	if ID ~= CDOTA_Unit_Hero_Omniknight then GameClose() return end
@@ -138,7 +139,7 @@ function CatchEnemy()
 end
 
 function GameClose()
-	text.visible=false
+	if text then text.visible=false end
 	collectgarbage("collect")
 end
 
