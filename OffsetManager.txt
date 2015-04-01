@@ -1,5 +1,5 @@
 Tool by Y3t1y3t( uc )
-Build Date : 24/3/2015 - 22:17:45
+Build Date : 1/4/2015 - 3:7:41
 
 DT_WeaponCSBase -> m_fAccuracyPenalty: ________ 0x00001668
 DT_BaseAnimating -> m_nForceBone: _____________ 0x00000a5c
@@ -40,23 +40,23 @@ BaseEntity -> m_dwIndex: ______________________ 0x00000064
 BaseEntity -> m_dwBoneMatrix: _________________ 0x00000a78
 BaseEntity -> m_bMoveType: ____________________ 0x00000258
 BaseEntity -> m_bDormant: _____________________ 0x000000e9
-ClientState -> m_dwClientState: _______________ 0x0055b434
+ClientState -> m_dwClientState: _______________ 0x00559434
 ClientState -> m_dwLocalPlayerIndex: __________ 0x00000160
 ClientState -> m_dwInGame: ____________________ 0x000000e8
 ClientState -> m_dwMaxPlayer: _________________ 0x000002f0
 ClientState -> m_dwMapDirectory: ______________ 0x00000168
 ClientState -> m_dwMapname: ___________________ 0x0000026c
-ClientState -> m_dwGameDirectory: _____________ 0x005f6508
+ClientState -> m_dwGameDirectory: _____________ 0x005f4508
 ClientState -> m_dwPlayerInfo: ________________ 0x00005210
 ClientState -> m_dwViewAngles: ________________ 0x00004ce0
-EngineRender -> m_dwViewMatrix: _______________ 0x04a087a4
-EngineRender -> m_dwEnginePosition: ___________ 0x006068a4
-RadarBase -> m_dwRadarBase: ___________________ 0x04a47eec
+EngineRender -> m_dwViewMatrix: _______________ 0x049e06a4
+EngineRender -> m_dwEnginePosition: ___________ 0x006048a4
+RadarBase -> m_dwRadarBase: ___________________ 0x04a1fdbc
 RadarBase -> m_dwRadarBasePointer: ____________ 0x00000050
-LocalPlayer -> m_dwLocalPlayer: _______________ 0x00a7094c
-EntityList -> m_dwEntityList: _________________ 0x04a13264
-WeaponTable -> m_dwWeaponTable: _______________ 0x04a5823c
+LocalPlayer -> m_dwLocalPlayer: _______________ 0x00a4999c
+EntityList -> m_dwEntityList: _________________ 0x049eb114
+WeaponTable -> m_dwWeaponTable: _______________ 0x04a3010c
 WeaponTableIndex -> m_dwWeaponTableIndex: _____ 0x00001624
-Extra -> m_dwInput: ___________________________ 0x04a5baa0
-Extra -> m_dwGlobalVars: ______________________ 0x004e7500
-Extra -> m_dwGlowObject: ______________________ 0x04b23d14
+Extra -> m_dwInput: ___________________________ 0x04a339a0
+Extra -> m_dwGlobalVars: ______________________ 0x004e53b8
+Extra -> m_dwGlowObject: ______________________ 0x04afbd64
