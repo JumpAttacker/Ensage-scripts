@@ -1,0 +1,25 @@
+--------------------
+[>]=-- Zat's CSGO-Dumper
+Dumped 27.03.2015, 22:12:43
+--------------------
+ EntityList = 0x04A13264
+ LocalPlayer = 0x00A7094C
+ FlashDuration = 0x00001DA0
+ RadarBase = 0x04A47EEC
+ ScoreBoardBase/GameResources = 0x04A334BC
+ ServerBase = 0x04A58080
+ EnginePointer = 0x0055B434
+ SetViewAngles = 0x00004CE0
+ CrosshairIndex = 0x000023F8
+ GlowObjectBase = 0x04B23D14
+ ViewMatrix1 = 0x04A087A4
+ ViewMatrix2 = 0x04A088B4
+ ViewMatrix3 = 0x04A08BC4
+ attack = 0x02E851D4
+ attack2 = 0x02E85198
+ forward = 0x02E851C8
+ backward = 0x02E851BC
+ moveleft = 0x02E851B0
+ moveright = 0x02E851A4
+ jump = 0x04AA1C2C
+
