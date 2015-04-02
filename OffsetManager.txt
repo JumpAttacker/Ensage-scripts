@@ -1,5 +1,5 @@
 Tool by Y3t1y3t( uc )
-Build Date : 1/4/2015 - 3:7:41
+Build Date : 2/4/2015 - 11:11:21
 
 DT_WeaponCSBase -> m_fAccuracyPenalty: ________ 0x00001668
 DT_BaseAnimating -> m_nForceBone: _____________ 0x00000a5c
@@ -49,14 +49,14 @@ ClientState -> m_dwMapname: ___________________ 0x0000026c
 ClientState -> m_dwGameDirectory: _____________ 0x005f4508
 ClientState -> m_dwPlayerInfo: ________________ 0x00005210
 ClientState -> m_dwViewAngles: ________________ 0x00004ce0
-EngineRender -> m_dwViewMatrix: _______________ 0x049e06a4
+EngineRender -> m_dwViewMatrix: _______________ 0x049e1724
 EngineRender -> m_dwEnginePosition: ___________ 0x006048a4
-RadarBase -> m_dwRadarBase: ___________________ 0x04a1fdbc
+RadarBase -> m_dwRadarBase: ___________________ 0x04a20e3c
 RadarBase -> m_dwRadarBasePointer: ____________ 0x00000050
-LocalPlayer -> m_dwLocalPlayer: _______________ 0x00a4999c
-EntityList -> m_dwEntityList: _________________ 0x049eb114
-WeaponTable -> m_dwWeaponTable: _______________ 0x04a3010c
+LocalPlayer -> m_dwLocalPlayer: _______________ 0x00a4a98c
+EntityList -> m_dwEntityList: _________________ 0x049ec194
+WeaponTable -> m_dwWeaponTable: _______________ 0x04a3118c
 WeaponTableIndex -> m_dwWeaponTableIndex: _____ 0x00001624
-Extra -> m_dwInput: ___________________________ 0x04a339a0
+Extra -> m_dwInput: ___________________________ 0x04a34a20
 Extra -> m_dwGlobalVars: ______________________ 0x004e53b8
-Extra -> m_dwGlowObject: ______________________ 0x04afbd64
+Extra -> m_dwGlowObject: ______________________ 0x04afcde4
