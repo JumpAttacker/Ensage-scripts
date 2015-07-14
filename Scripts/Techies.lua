@@ -1,8 +1,6 @@
 --<<Techies combo by Jumbo v0.1>>
 
 require("libs.Utils")
-require("libs.ScriptConfig")
-require("libs.TargetFind")
 require("libs.EasyHUD")
 
 local myHUD = nil
@@ -393,14 +391,14 @@ function Load()
 			--myHUD:Minimize(false)
 			play = true
 			script:RegisterEvent(EVENT_TICK,Tick)
-			script:RegisterEvent(EVENT_KEY,Key)
+			--script:RegisterEvent(EVENT_KEY,Key)
 			script:UnregisterEvent(Load)
 			--print("techies detected")
 		else
 			--print("Only forcestaff")
 			play = true
 			script:RegisterEvent(EVENT_TICK,ForceStaffTick)
-			script:RegisterEvent(EVENT_KEY,Key)
+			--script:RegisterEvent(EVENT_KEY,Key)
 			script:UnregisterEvent(Load)
 		end
 	end
@@ -409,8 +407,8 @@ end
 function GameClose()
 	collectgarbage("collect")
 	if play then
-		script:UnregisterEvent(Main)
-		script:UnregisterEvent(Key)
+		script:UnregisterEvent(Tick)
+		--script:UnregisterEvent(Key)
 		play = false
 	end
 end
