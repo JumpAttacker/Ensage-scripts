@@ -1,4 +1,4 @@
---<<If the icon has become a color that mean that creep dies from your attack>>
+--<<Added bloodrage>>
 require("libs.ScriptConfig")
 require("libs.Utils")
 
