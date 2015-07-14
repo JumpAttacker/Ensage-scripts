@@ -303,16 +303,14 @@ function ForceStaffAct(t)
 	print(tostring(CanBeForced))
 	print(tostring(GetDistance2D(me, t)))
 	--]]
-	local counter=0
 	if CanBeForced and not LinkProtected and forcestaff and forcestaff:CanBeCasted() and forcestaff.cd == 0 then
+		local counter=0
+		local dmg=0
 		for i,v in ipairs(mines) do
-			local dmg=0
-			local explos={}
 			if GetDistance2D(toXY,v)<=425 and v.health>0 and t.health>0 and v.name == "npc_dota_techies_remote_mine" then
 				if v.handle and bombInfoDamage[v.handle] then
 					dmg=dmg+math.floor(t:DamageTaken(bombInfoDamage[v.handle],DAMAGE_MAGC,me,false))
-					explos[#explos+1]=v2
-					if v.health-dmg<=0 then
+					if t.health-dmg<=0 then
 						me:SafeCastAbility(forcestaff, t)
 						--print("force_staff_accepted")
 						break
