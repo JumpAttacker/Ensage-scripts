@@ -1,110 +1,76 @@
---<<omni support pa v1.4>>
-require("libs.Utils")
+--<<omni support pa v1.5>>
+
 require("libs.ScriptConfig")
+require("libs.Utils")
+require("libs.AbilityDamage")
+require("libs.Animations")
 
 config = ScriptConfig.new()
-config:SetParameter("Auto_heal", "G",config.TYPE_HOTKEY)
-config:SetParameter("Auto_repel", "F",config.TYPE_HOTKEY)
-config:SetParameter("HideText", "C",config.TYPE_HOTKEY)
-config:SetParameter("Heal_on_blink_hotkey", "H",config.TYPE_HOTKEY)
-config:SetParameter("Heal_on_blink", true)
+config:SetParameter("Hotkey", "F", config.TYPE_HOTKEY)
 config:Load()
 
-local Hk1=config.Auto_heal
-local Hk2=config.Auto_repel
-local Hk3=config.HideText
-local Hk4=config.Heal_on_blink_hotkey
-local HealAfterBlink=config.Heal_on_blink
-local init = false
-target=nil
-local Key_for_heal=false
-local Key_for_repel=false
+local Hotkey = config.Hotkey
+
+local play = false
+local active = false
+local target
+local eff,eff2=nil,nil
 local monitor = client.screenSize.x/1600
-local F14 = drawMgr:CreateFont("F14","Tahoma",14*monitor,550*monitor)
-local move=0 local heal=0
-local can_heal=false
-local name=''
-text=nil
+local F14 = drawMgr:CreateFont("F14","Tahoma",12*monitor,750*monitor) 
+local statusText
+
+
+local screenResolution = client.screenSize
+local screenRatio = client.screenRatio
+
 function Key(msg,code)
-	if not PlayingGame() or client.console or client.chat or client.loading or not init then return end
-	if msg == KEY_UP then
-		if code == Hk1 then
-			Key_for_heal=true
-		end
-		if code == Hk2 then
-			Key_for_repel=true
-		end
-		if code == Hk then
-			text.visible=not text.visible
-		end
-		if code == Hk4 then
-			HealAfterBlink=not HealAfterBlink
-		end
+	if client.chat or client.console or client.loading then return end
+	if code == Hotkey then
+		active = (msg == KEY_DOWN)
 	end
 end
-function Tick( tick )
-	if not PlayingGame() or client.chat then return end
-	me = entityList:GetMyHero()	
-	--print(me)
-	if not me then return end
-	local ID = me.classId
-	if ID ~= CDOTA_Unit_Hero_Omniknight then GameClose() return end
-	if not init then
-		init=true
-		text = drawMgr:CreateText(-45,-55, 0xFFFFFF99, "",F14) text.visible = true text.entity = me text.entityPosition = Vector(0,0,me.healthbarOffset)
-	end
-	CatchPa()
-	local s1=''
+
+function Tick(tick)
+	if not PlayingGame() then return end
+	if sleepTick and sleepTick > tick then return end	
 	
-	if HealAfterBlink then 
-		s1='[+]' 
-	else 
-		s1='[-]' 
-	end
-	if target~=nil then
-		local CE=CatchEnemy()
-		if IsKeyDown(32) and HealAfterBlink and SleepCheck('test') then
-			if tick > move then
-				me:Move(client.mousePosition)
-				move = tick + 100
-			end
-			if me.alive and target.alive then 
-				local omni = me:FindSpell("omniknight_purification")
-				if omni and omni.level > 0 and omni:CanBeCasted() and me:CanCast() then
-					if CE or target.activity==432 and target and GetDistance2D(me,target) < 700 then
-						me:CastAbility(omni,target)
-						Key_for_heal = false
-						Sleep(200,'test')
-					end
+	me = entityList:GetMyHero() if not me then return end
+	if active then
+		if not eff then
+            eff = Effect(me,"range_display")
+			eff:SetVector( 1, Vector(700,0,0) )
+		end
+		if not eff2 then
+            eff2 = Effect(me,"range_display")
+			eff2:SetVector( 1, Vector(1000,0,0) )
+		end
+		CatchPa()
+		if not target then statusText.text="[No target]" return end
+		heal=me:GetAbility(1)
+		if  me.alive and target.alive and heal~=nil then 
+			dist=GetDistance2D(me,target)
+			if CE or target.activity==432 then
+				if dist<=700 then
+					me:SafeCastAbility(heal,target)
+					statusText.text="[Casting]"
+				else
+					statusText.text="[Out of range]"
 				end
+			else
+				statusText.text="[In action]"
 			end
-			text.text='Auto heal [on]. InAction: '..s1..' | '..name
-		else
-			text.text='Auto heal [off]. InAction: '..s1..' | '..name
 		end
 	else
-		text.text='No target'
-	end
-		if me.alive and target~=nil and target.alive then
-			if Key_for_heal then
-				local omni = me:GetAbility(1)
-				if omni and omni.level > 0 and omni:CanBeCasted() and me:CanCast() then
-					if target and GetDistance2D(me,target) < 2500 then
-						me:CastAbility(omni,target)
-						Key_for_heal = false
-					end
-				end
-			end
-			if Key_for_repel then
-				local omni = me:GetAbility(2)
-				if omni and omni.level > 0 and omni:CanBeCasted() and me:CanCast() then
-					if target and GetDistance2D(me,target) < 2500 then
-						me:CastAbility(omni,target)
-						Key_for_repel = false
-					end
-				end
-			end
+		if eff then
+			eff = nil
+			collectgarbage("collect")
 		end
+		if eff2 then
+			eff2 = nil
+			collectgarbage("collect")
+		end
+	end
+	statusText.visible=active
 end
 
 function CatchPa()
@@ -114,36 +80,41 @@ function CatchPa()
 	for i,v in ipairs(ally) do
 		if v.healthbarOffset ~= -1 and not v:IsIllusion() then
 			distance = GetDistance2D(me,v)
-			if distance <= 2500 and v.visible and v.alive and v.health > 0 then 
+			if distance <= 1000 and v.visible and v.alive and v.health > 0 then 
 				target = v
 				return
 			end
 		end
 	end
 end
-function CatchEnemy()
-	local me = entityList:GetMyHero()
-	local enemyTeam = me:GetEnemyTeam() 
-	local eny = entityList:FindEntities({type=LuaEntity.TYPE_HERO,team=enemyTeam,alive=true,visible=true})
-	for i,v in ipairs(eny) do
-		if target.healthbarOffset ~= -1 and v.healthbarOffset ~= -1 and not v:IsIllusion() then
-			distance = GetDistance2D(target,v)
-			if distance <= 260 and v.visible and v.alive and v.health > 0 then 
-				name=v.name
-				return true
-			end
+
+function Load()
+	if PlayingGame() then
+		local me = entityList:GetMyHero()
+		if not me or me.classId ~= CDOTA_Unit_Hero_Omniknight then 
+			script:Disable()
+		else
+			play = true
+			script:RegisterEvent(EVENT_TICK,Tick)
+			script:RegisterEvent(EVENT_KEY,Key)
+			script:UnregisterEvent(Load)
+			statusText = drawMgr:CreateText(-45,-55, 0xFFFFFF99, "[In actions]",F14) 
+			statusText.visible = false 
+			statusText.entity = me 
+			statusText.entityPosition = Vector(0,0,me.healthbarOffset+25)
 		end
 	end
-	name='not enemy'
-	return false
 end
 
 function GameClose()
-	if text then text.visible=false end
 	collectgarbage("collect")
+	if play then
+	    statusText.visible = false
+		script:UnregisterEvent(Main)
+		script:UnregisterEvent(Key)
+		play = false
+	end
 end
 
-script:RegisterEvent(EVENT_CLOSE, GameClose)
-script:RegisterEvent(EVENT_FRAME,Tick)
-script:RegisterEvent(EVENT_KEY,Key)
-
+script:RegisterEvent(EVENT_CLOSE,GameClose)
+script:RegisterEvent(EVENT_TICK,Load)
