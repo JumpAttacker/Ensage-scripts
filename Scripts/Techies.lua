@@ -1,4 +1,4 @@
---<<Techies combo by Jumbo v0.1>>
+--<<Techies combo by Jumbo v0.2>>
 
 require("libs.Utils")
 require("libs.EasyHUD")
@@ -15,7 +15,7 @@ local statusTextSuic={}
 local bombRange=700
 local bombInfo={}
 local bombInfoDamage={}
-local bombInfoRange={200,450,425}
+local bombInfoRange={200,450,440}
 local bombRangeEffect={}
 local me=nil
 local icon = {}
@@ -25,6 +25,34 @@ local remote_damage={300,450,600,750}
 local textDrawObj={}
 local xx,yy = 10,110
 local chLand,chStatic,chRemote=true,false,true
+local Performance
+
+function SavePerformanceConf(b1,b2,t)
+	local file = io.open(SCRIPT_PATH.."/config/Techies.txt", "w")
+	b1.color = math.random(0,0xFFFFFF)
+	if Performance<5 then
+		Performance=Performance+1
+	else
+		Performance=1
+	end
+	t.text="P: "..tostring(Performance)
+	if file then
+		file:write(Performance)
+		--print("Performance save: "..tostring(Performance))
+		file:close()
+	end
+end
+function LoadPerformanceConf()
+	local file = io.open(SCRIPT_PATH.."/config/Techies.txt", "r")
+	if file then
+		Performance = file:read("*number")
+		--print("Performance load: "..tostring(Performance))
+		file:close()                           
+	 end
+	if not Performance then
+	   Performance=1
+	end
+end
 function CheckLand(b1,b2,t)	
 	chLand=not chLand
 	Fresh()
@@ -88,11 +116,14 @@ function Tick(tick)
 	UpdateHeroInfo()
 	--print("Update: UpdateHeroInfo")
 	if SleepCheck("HudUpdate") then
-		Sleep(1000,"HudUpdate")
+		Sleep(750+250*Performance,"HudUpdate")
 		--print("Update: HudUpdate")
 		HudUpdate()
 	end
 	Sleep(10)
+	if Performance>1 then
+		Sleep(50*Performance)
+	end
 end
 function FindCount(enemy,spell,damage,dmg_type)
 	if not spell and spell.level>0 then 
@@ -113,15 +144,19 @@ function FindCount(enemy,spell,damage,dmg_type)
 		if not enemy:CanDie() or enemy:IsInvul() or (enemy:IsPhysDmgImmune() and dmg_type==DAMAGE_PHYS) or (enemy:IsMagicImmune() and dmg_type==DAMAGE_MAGC) then
 			return "[Immune]"
 		else
+			local hlth=enemy.health
+			if not enemy.alive then
+				hlth=enemy.maxHealth
+			end
 			repeat
 				n=n+1
-				dmg=dmg+math.floor(enemy:DamageTaken(damage,dmg_type,me,false))
+				dmg=dmg+damage 
 				--if math.floor(enemy:DamageTaken(damage,dmg_type,me,false)) = 0 then
 				--	return "[Immune]"
 					--break
 				--end
 				--print(tostring( dmg))
-			until enemy.health-dmg<0 or n>=30-- or dmg==0
+			until hlth-math.floor(enemy:DamageTaken(dmg,dmg_type,me))<0 or n>=30-- or dmg==0
 		end
 	end
 	return tostring(n)
@@ -217,6 +252,7 @@ function UpdateHeroInfo()
 		--Remote Mine calc
 		if not v:IsIllusion() and v.visible then
 			local dmg=0
+			local dmgEnd=0
 			local explos={}
 			if (AutoForceStaff or IsKeyDown(17)) and me.alive then 
 				if AutoForceStaff and IsKeyDown(17) then
@@ -233,16 +269,17 @@ function UpdateHeroInfo()
 			if me.classId == CDOTA_Unit_Hero_Techies then
 				if me:GetAbility(6).level>0 then
 					for i2,v2 in ipairs(mines) do
-						if GetDistance2D(v,v2)<=425 and v2.healthbarOffset ~= -1 and v.health>0 and v2.health>0 and bombInfoDamage[v2.handle] and v:CanDie() then
+						if GetDistance2D(v,v2)<=bombInfoRange[2] and v2.healthbarOffset ~= -1 and v.health>0 and v2.health>0 and bombInfoDamage[v2.handle] and v:CanDie() then
 							--[[
 							print("Bomg damage: "..tostring(bombInfoDamage[v2.handle]))
 							print("Bomb handle: "..tostring(v2.handle))
 							print("Calc taken damage: "..tostring(math.floor(v:DamageTaken(bombInfoDamage[v2.handle],DAMAGE_MAGC,me))))
 							print("==============================")
 							--]]
-							dmg=dmg+math.floor(v:DamageTaken(bombInfoDamage[v2.handle],DAMAGE_MAGC,me,false))
+							dmg=dmg+bombInfoDamage[v2.handle]
 							explos[#explos+1]=v2
-							if v.health-dmg<=0 and AutoDetonate then
+							dmgEnd=v.health-math.floor(v:DamageTaken(dmg,DAMAGE_MAGC,me,false))
+							if dmgEnd<0 and AutoDetonate then
 								--print("Total bombs: "..tostring(#explos).." | Health:"..tostring(v.health).." | Dmg: "..tostring(dmg).." | Ememy: "..tostring(v.handle))
 								for a,s in ipairs(explos) do
 									s:SafeCastAbility(s:GetAbility(1))	
@@ -262,7 +299,7 @@ function UpdateHeroInfo()
 							statusText[hand].entity = v 
 							statusText[hand].entityPosition = Vector(0,0,v.healthbarOffset+30)
 						else
-							statusText[hand].text=tostring(v.health-dmg)
+							statusText[hand].text=tostring(dmgEnd)
 						end
 						statusText[hand].visible = v.visible and v.alive 
 					elseif statusText[hand] then
@@ -305,7 +342,7 @@ function ForceStaffAct(t)
 		local counter=0
 		local dmg=0
 		for i,v in ipairs(mines) do
-			if GetDistance2D(toXY,v)<=425 and v.health>0 and t.health>0 and v.name == "npc_dota_techies_remote_mine" then
+			if GetDistance2D(toXY,v)<=bombInfoRange[2] and v.health>0 and t.health>0 and v.name == "npc_dota_techies_remote_mine" then
 				if v.handle and bombInfoDamage[v.handle] then
 					dmg=dmg+math.floor(t:DamageTaken(bombInfoDamage[v.handle],DAMAGE_MAGC,me,false))
 					if t.health-dmg<=0 then
@@ -355,7 +392,7 @@ function UpdateMineInfo()
                         elseif v.name == "npc_dota_techies_stasis_trap" and chStatic then
                             bombRangeEffect[v.handle]:SetVector(1, Vector(450,0,0) )
                         elseif v.name == "npc_dota_techies_remote_mine" and chRemote then
-                            bombRangeEffect[v.handle]:SetVector(1, Vector(425,0,0) )
+                            bombRangeEffect[v.handle]:SetVector(1, Vector(bombInfoRange[2],0,0) )
                         end
                     end
 				else
@@ -376,6 +413,7 @@ function Load()
 		if not me then
 			script:Disable()
 		elseif me.classId == CDOTA_Unit_Hero_Techies then
+			LoadPerformanceConf()
 			myHUD = EasyHUD.new(xx,yy,140*monitor,135*monitor,"Techies script",0x111111C0,-1,true,false)
 			myHUD:AddCheckbox(0,2,20,20,"Auto Detonate",AutoDetonateToggler,true)
 			myHUD:AddCheckbox(0,22,20,20,"Show Range [ Land Mines ]",CheckLand,true)
@@ -383,7 +421,7 @@ function Load()
 			myHUD:AddCheckbox(0,62,20,20,"Show Range [ Remote Mines ]",CheckRemote,true)
 			myHUD:AddCheckbox(0,82,20,20,"Hero Panel ",HeroPanelFunc,true)
 			myHUD:AddCheckbox(70,82,20,20,"Auto ForceStaff",ForceStaffToggle,false)
-			--myHUD:AddButton(0,110,150,40, 0x60615FFF,"Save Settings",SaveSettings)
+			myHUD:AddButton(120,110,40,40, 0x60615FFF,"P: "..tostring(Performance),SavePerformanceConf)
 			myHUD:AddCheckbox(0,102,20,20,"Show Bomb Damage",ShowBD,false)
 			myHUD:AddCheckbox(0,122,20,20,"Show Suic Damage",ShowSD,false)
 			HeroInfoHUD = EasyHUD.new(xx,yy+145*monitor,140*monitor,135*monitor,"Hero Panel",0x111111C0,-1,false,false)
@@ -394,6 +432,8 @@ function Load()
 			--script:RegisterEvent(EVENT_KEY,Key)
 			script:UnregisterEvent(Load)
 			--print("techies detected")
+			client:ExecuteCmd("dota_player_units_auto_attack_after_spell 0")
+			
 		else
 			--print("Only forcestaff")
 			play = true
