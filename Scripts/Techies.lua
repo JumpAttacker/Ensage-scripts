@@ -1,4 +1,4 @@
---<<Techies combo by Jumbo v0.3>>
+--<<Techies combo by Jumbo v0.3b>>
 
 require("libs.Utils")
 require("libs.EasyHUD")
@@ -142,7 +142,7 @@ function FindCount(enemy,spell,damage,dmg_type)
 	--]]
 	local block=0
 	--if enemy:DoesHaveModifier("modifier_templar_assassin_refraction_absorb") then
-	if enemy:GetAbility(1).cd > 0 then
+	if enemy.classId == CDOTA_Unit_Hero_TemplarAssassin and enemy:GetAbility(1).cd > 0 then
 		block=2+enemy:GetAbility(1).level
 		--print("Block count: "..tostring(block))
 	end
@@ -280,7 +280,7 @@ function UpdateHeroInfo()
 				if me:GetAbility(6).level>0 then
 					local block=0
 					--if v:DoesHaveModifier("modifier_templar_assassin_refraction_absorb") then
-					if v:GetAbility(1).cd > 0 then
+					if v.classId == CDOTA_Unit_Hero_TemplarAssassin and v:GetAbility(1).cd > 0 then
 						block=2+v:GetAbility(1).level
 						--print("Block count: "..tostring(block))
 					end
