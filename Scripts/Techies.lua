@@ -1,4 +1,4 @@
---<<Techies combo by Jumbo v0.2>>
+--<<Techies combo by Jumbo v0.3>>
 
 require("libs.Utils")
 require("libs.EasyHUD")
@@ -140,6 +140,12 @@ function FindCount(enemy,spell,damage,dmg_type)
 	print("Magic: "..tostring(DAMAGE_MAGC).." Phys: "..tostring (DAMAGE_PHYS))
 	print("==============================")
 	--]]
+	local block=0
+	--if enemy:DoesHaveModifier("modifier_templar_assassin_refraction_absorb") then
+	if enemy:GetAbility(1).cd > 0 then
+		block=2+enemy:GetAbility(1).level
+		--print("Block count: "..tostring(block))
+	end
 	if damage then
 		if not enemy:CanDie() or enemy:IsInvul() or (enemy:IsPhysDmgImmune() and dmg_type==DAMAGE_PHYS) or (enemy:IsMagicImmune() and dmg_type==DAMAGE_MAGC) then
 			return "[Immune]"
@@ -150,7 +156,11 @@ function FindCount(enemy,spell,damage,dmg_type)
 			end
 			repeat
 				n=n+1
-				dmg=dmg+damage 
+				if block==0 then
+					dmg=dmg+damage 
+				else
+					block=block-1
+				end
 				--if math.floor(enemy:DamageTaken(damage,dmg_type,me,false)) = 0 then
 				--	return "[Immune]"
 					--break
@@ -268,6 +278,12 @@ function UpdateHeroInfo()
 			end
 			if me.classId == CDOTA_Unit_Hero_Techies then
 				if me:GetAbility(6).level>0 then
+					local block=0
+					--if v:DoesHaveModifier("modifier_templar_assassin_refraction_absorb") then
+					if v:GetAbility(1).cd > 0 then
+						block=2+v:GetAbility(1).level
+						--print("Block count: "..tostring(block))
+					end
 					for i2,v2 in ipairs(mines) do
 						if GetDistance2D(v,v2)<=bombInfoRange[2] and v2.healthbarOffset ~= -1 and v.health>0 and v2.health>0 and bombInfoDamage[v2.handle] and v:CanDie() then
 							--[[
@@ -276,9 +292,16 @@ function UpdateHeroInfo()
 							print("Calc taken damage: "..tostring(math.floor(v:DamageTaken(bombInfoDamage[v2.handle],DAMAGE_MAGC,me))))
 							print("==============================")
 							--]]
-							dmg=dmg+bombInfoDamage[v2.handle]
+							if block==0 then
+								dmg=dmg+bombInfoDamage[v2.handle]
+								--print(tostring(dmgEnd))
+							else
+								--print("block #"..tostring(block).." | "..tostring(dmgEnd))
+								block=block-1
+							end
 							explos[#explos+1]=v2
 							dmgEnd=v.health-math.floor(v:DamageTaken(dmg,DAMAGE_MAGC,me,false))
+
 							if dmgEnd<0 and AutoDetonate then
 								--print("Total bombs: "..tostring(#explos).." | Health:"..tostring(v.health).." | Dmg: "..tostring(dmg).." | Ememy: "..tostring(v.handle))
 								for a,s in ipairs(explos) do
@@ -314,6 +337,10 @@ function UpdateHeroInfo()
 							statusTextSuic[hand].entityPosition = Vector(0,0,v.healthbarOffset)
 						end
 						calc=v.health - math.floor(v:DamageTaken(suic_damage[me:GetAbility(3).level],DAMAGE_PHYS,me))
+						--if v:DoesHaveModifier("modifier_templar_assassin_refraction_absorb") then
+						if v:GetAbility(1).cd > 0 then
+							calc="invul"
+						end
 						statusTextSuic[hand].text = tostring(calc)
 						statusTextSuic[hand].visible = v.visible and v.alive 
 					elseif statusTextSuic[hand] then
