@@ -211,7 +211,7 @@ function HudUpdate()
 				spell_icon[v.handle].first=drawMgr:CreateRect(xx+40,yy+190,20,20,0x000000D0) 
 				spell_icon[v.handle].first.textureId=drawMgr:GetTextureId("NyanUI/other/npc_dota_techies_land_mine")
 				killable[i]=true
-				print("killable: "..tostring(i))
+				--print("killable: "..tostring(i))
 				if me:GetAbility(1).level>0 then
 					dummy, textDrawObj[v.handle].first = HeroInfoHUD:AddText(35,32+26*count,(FindCount(v,spells[1],300+150*me:GetAbility(1).level,DAMAGE_PHYS)))
 				else
