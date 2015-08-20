@@ -1,4 +1,4 @@
---<<Techies combo by Jumbo v0.3b>>
+--<<Techies combo by Jumbo v0.4>>
 
 require("libs.Utils")
 require("libs.EasyHUD")
@@ -22,6 +22,7 @@ local icon = {}
 local spell_icon = {}
 local suic_damage={500,650,850,1150}
 local remote_damage={300,450,600,750}
+local killable={}
 local textDrawObj={}
 local xx,yy = 10,110
 local chLand,chStatic,chRemote=true,false,true
@@ -65,6 +66,22 @@ AutoDetonate=true
 function AutoDetonateToggler(b1,b2,t)
 	AutoDetonate=not AutoDetonate
 end
+function killableToggle1(b1,b2,t)
+	killable[1]=not killable[1]
+end
+function killableToggle2(b1,b2,t)
+	killable[2]=not killable[2]
+end
+function killableToggle3(b1,b2,t)
+	killable[3]=not killable[3]
+end
+function killableToggle4(b1,b2,t)
+	killable[4]=not killable[4]
+end
+function killableToggle5(b1,b2,t)
+	killable[5]=not killable[5]
+end
+
 function CheckRemote(b1,b2,t)	
 	chRemote=not chRemote
 	Fresh()
@@ -182,6 +199,7 @@ function HudUpdate()
 		local ID = v.classId
 		if not v:IsIllusion() and not v.meepoIllusion then
 			if not icon[hand] then
+				
 				icon[hand]=drawMgr:CreateRect(xx+5,yy+190+26*(count+1),20,20,0x000000D0) 
 				icon[hand].textureId=drawMgr:GetTextureId("NyanUI/miniheroes/"..v.name:gsub("npc_dota_hero_",""))
 			end
@@ -192,6 +210,8 @@ function HudUpdate()
 				textDrawObj[v.handle]={}
 				spell_icon[v.handle].first=drawMgr:CreateRect(xx+40,yy+190,20,20,0x000000D0) 
 				spell_icon[v.handle].first.textureId=drawMgr:GetTextureId("NyanUI/other/npc_dota_techies_land_mine")
+				killable[i]=true
+				print("killable: "..tostring(i))
 				if me:GetAbility(1).level>0 then
 					dummy, textDrawObj[v.handle].first = HeroInfoHUD:AddText(35,32+26*count,(FindCount(v,spells[1],300+150*me:GetAbility(1).level,DAMAGE_PHYS)))
 				else
@@ -302,7 +322,7 @@ function UpdateHeroInfo()
 							explos[#explos+1]=v2
 							dmgEnd=v.health-math.floor(v:DamageTaken(dmg,DAMAGE_MAGC,me,false))
 
-							if dmgEnd<0 and AutoDetonate then
+							if dmgEnd<0 and AutoDetonate and killable[i] then
 								--print("Total bombs: "..tostring(#explos).." | Health:"..tostring(v.health).." | Dmg: "..tostring(dmg).." | Ememy: "..tostring(v.handle))
 								for a,s in ipairs(explos) do
 									s:SafeCastAbility(s:GetAbility(1))	
@@ -452,6 +472,12 @@ function Load()
 			myHUD:AddCheckbox(0,102,20,20,"Show Bomb Damage",ShowBD,false)
 			myHUD:AddCheckbox(0,122,20,20,"Show Suic Damage",ShowSD,false)
 			HeroInfoHUD = EasyHUD.new(xx,yy+145*monitor,140*monitor,135*monitor,"Hero Panel",0x111111C0,-1,false,false)
+			HeroInfoHUD:AddCheckbox(1,1+26*1,22,22,"",killableToggle1,true)
+			HeroInfoHUD:AddCheckbox(1,1+26*2,22,22,"",killableToggle2,true)
+			HeroInfoHUD:AddCheckbox(1,1+26*3,22,22,"",killableToggle3,true)
+			HeroInfoHUD:AddCheckbox(1,1+26*4,22,22,"",killableToggle4,true)
+			HeroInfoHUD:AddCheckbox(1,1+26*5,22,22,"",killableToggle5,true)
+			
 			--HeroInfoHUD:AddCheckbox(0,2,20,20,"Auto Detonate",nil,true)
 			--myHUD:Minimize(false)
 			play = true
