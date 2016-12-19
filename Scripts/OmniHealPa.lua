@@ -1,4 +1,4 @@
---<<omni support pa v1.5>>
+--<<omni support pa v1.5 test>>
 
 require("libs.ScriptConfig")
 require("libs.Utils")
